@@ -27,7 +27,7 @@ export async function generateSchema(conn: IDatabaseConnection, packages: Array<
 	}[];
 	const errors = [] as Error[];
 	for (const pkg of packages) {
-		createPackageUser(db, pkg.id);
+		await createPackageUser(db, pkg.id);
 		pkg.modules.forEach(mod => {
 			mod.properties.schemas.forEach(async schema => {
 				const tableName = createSlug(`${mod.id}_${schema.name}`);
@@ -87,10 +87,17 @@ export async function generateSchema(conn: IDatabaseConnection, packages: Array<
 							module: mm.id,
 							schema_definition: JSON.stringify(mm.properties.schemas)
 						}));
+						const username = createSlug(pkg.id);
 						for (const ss of mm.properties.schemas) {
 							const tableName = createSlug(`${mm.id}_${ss.name}`);
-							const username = createSlug(pkg.id);
 							await db.raw(`GRANT SELECT, UPDATE ON TABLE public.${tableName} TO ${username}`);
+						}
+						const dependencies = await db("vs_schema_map")
+							.select("vs_schema")
+							.whereIn("module",mm.properties.security.dependencies);
+						for (const dependency of dependencies) {
+							const {vs_schema_map} = dependency;
+							await db.raw(`GRANT SELECT, UPDATE ON TABLE public.${vs_schema_map} TO ${username}`);
 						}
 					}
 					await Promise.all(defaultInserts);
