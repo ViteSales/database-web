@@ -32,6 +32,7 @@ export async function dbGenerateInitials(conn: IDatabaseConnection): Promise<voi
 			table.json("old_value");
 			table.json("new_value");
 			table.string("editor",80).index();
+			table.string("action",10);
 			table.json("metadata");
 			table.timestamp("created_at",{useTz: true});
 		});

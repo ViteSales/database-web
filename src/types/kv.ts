@@ -1,0 +1,1 @@
+export type KV = Record<string, any>;

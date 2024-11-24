@@ -13,10 +13,6 @@ export async function dbGenerateSchema(conn: IDatabaseConnection, packages: Arra
 			reject(db);
 			return;
 		}
-		const schemas: Array<{
-			tableName: string;
-			schema: IViteSalesDatabaseSchema;
-		}> = [];
 		try {
 			const dbOps = [];
 			for (const pkg of packages) {

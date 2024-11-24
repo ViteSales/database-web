@@ -12,6 +12,7 @@ export async function dbCreateUserForPackage(conn: IDatabaseConnection, pkgId: s
 			reject(db);
 			return;
 		}
+		const k = db();
 		try {
 			const username = createSlug(pkgId);
 			const password = `#<${pkgId}>#`;
