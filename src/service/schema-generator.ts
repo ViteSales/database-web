@@ -31,27 +31,34 @@ export async function generateSchema(conn: IDatabaseConnection, packages: Array<
 		pkg.modules.forEach(mod => {
 			mod.properties.schemas.forEach(async schema => {
 				const tableName = createSlug(`${mod.id}_${schema.name}`);
-				if (await db.schema.hasTable(tableName)) {
-					const err = await updateSchema(conn.type || "pg", db, mod.id, schema);
-					if (err.length > 0) {
-						errors.push(...err);
+				try {
+					const hasTable = await db.schema.hasTable(tableName);
+					if (hasTable) {
+						const err = await updateSchema(conn.type || "pg", db, mod.id, schema);
+						if (err.length > 0) {
+							err.forEach(e => {
+								errors.push(e);
+							});
+						}
+						return;
 					}
+				} catch (e: any) {
+					errors.push(onDatabaseError(e));
 					return;
 				}
-				const tableBuilder = db.schema.createTable(tableName, table => {
-					for (const propertiesKey in schema.properties) {
-						const property = schema.properties[propertiesKey];
-						table = columnMapping(conn.type || "pg", table, propertiesKey, property);
-					}
-					if (schema.indexes) {
-						table.index(schema.indexes);
-					}
-					if (schema.unique) {
-						table.unique(schema.unique);
-					}
-				});
 				try {
-					await tableBuilder;
+					await db.schema.createTable(tableName, table => {
+						for (const propertiesKey in schema.properties) {
+							const property = schema.properties[propertiesKey];
+							columnMapping(conn.type || "pg", table, propertiesKey, property)
+						}
+						if (schema.indexes) {
+							table.index(schema.indexes);
+						}
+						if (schema.unique) {
+							table.unique(schema.unique);
+						}
+					});
 					createSuccess.push({
 						package_schema: schema.name,
 						vs_schema: tableName,
@@ -61,17 +68,18 @@ export async function generateSchema(conn: IDatabaseConnection, packages: Array<
 				}
 			});
 		});
-		if (errors.length === 0) {
+		if (errors.length === 0 && createSuccess.length > 0) {
 			try {
-				await Promise.all(pkg.modules.map(async mod => {
-					const defaultInserts = mod.properties.schemas.map(async schema => {
-						await db("vs_schema_map").insert({
+				const defaultInserts: Array<Promise<any>> = [];
+				pkg.modules.map(async mod => {
+					for (const schema of mod.properties.schemas) {
+						defaultInserts.push(db("vs_schema_map").insert({
 							package: pkg.id,
 							module: schema.name,
 							vs_schema: createSlug(`${mod.id}_${schema.name}`),
 							package_version: pkg.version,
-						});
-					});
+						}));
+					}
 					for (const mm of pkg.modules) {
 						defaultInserts.push(db("vs_package_permission").insert({
 							package: pkg.id,
@@ -100,8 +108,8 @@ export async function generateSchema(conn: IDatabaseConnection, packages: Array<
 							await db.raw(`GRANT SELECT, UPDATE ON TABLE public.${vs_schema_map} TO ${username}`);
 						}
 					}
-					await Promise.all(defaultInserts);
-				}));
+				});
+				await Promise.all(defaultInserts);
 			} catch (e: any) {
 				errors.push(onDatabaseError(e));
 			}
@@ -123,15 +131,15 @@ async function updateSchema(dbType: string, db: Knex<any, unknown[]>, modId: str
 	try {
 		await db.schema.createTableLike(clonedTableName, existingTableName);
 		await db.raw(`INSERT INTO ${clonedTableName} SELECT * FROM ${existingTableName}`);
-		const alterSchema = db.schema.alterTable(existingTableName, async table => {
+		await db.schema.table(existingTableName, async table => {
 			for (const propertiesKey in schema.properties) {
 				const property = schema.properties[propertiesKey];
-				if (!await db.schema.hasColumn(existingTableName, propertiesKey)) {
-					table = columnMapping(dbType, table, propertiesKey, property);
+				const hasColumn = await db.schema.hasColumn(existingTableName, propertiesKey);
+				if (!hasColumn) {
+					columnMapping(dbType, table, propertiesKey, property);
 				}
 			}
 		});
-		await alterSchema;
 		await db.schema.dropTable(clonedTableName);
 	} catch (e: any) {
 		errors.push(onDatabaseError(e));
@@ -231,7 +239,7 @@ async function createInitialTables(db: Knex<any, unknown[]>): Promise<Error[]> {
 
 async function createPackageUser(db: Knex<any, unknown[]>, pkgId: string) {
 	const username = createSlug(pkgId);
-	const userExists = db('pg_roles')
+	const userExists = await db('pg_roles')
 		.select('rolname')
 		.where('rolname', username)
 		.first();
@@ -253,7 +261,7 @@ function columnMapping(dbType: string, table: any, propertiesKey: string, proper
 			case "boolean":
 				return table.boolean(propertiesKey);
 			case "box":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'box') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'box') : table.string(propertiesKey, property.length);
 			case "bytea":
 				return table.binary(propertiesKey);
 			case "character":
@@ -261,43 +269,43 @@ function columnMapping(dbType: string, table: any, propertiesKey: string, proper
 			case "character varying":
 				return table.string(propertiesKey);
 			case "cidr":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'cidr') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'cidr') : table.string(propertiesKey,property.length);
 			case "circle":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'circle') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'circle') : table.string(propertiesKey,property.length);
 			case "date":
 				return table.date(propertiesKey);
 			case "double precision":
 				return table.double(propertiesKey);
 			case "inet":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'inet') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'inet') : table.string(propertiesKey,property.length);
 			case "integer":
 				return table.integer(propertiesKey);
 			case "interval":
 				return dbType === "pg" ? table.specificType(propertiesKey, 'interval') : table.integer(propertiesKey);
 			case "json":
-				return dbType === "pg" || dbType === 'mysql' ? table.json(propertiesKey) : table.string(propertiesKey);
+				return dbType === "pg" || dbType === 'mysql' ? table.json(propertiesKey) : table.string(propertiesKey,property.length);
 			case "jsonb":
 				return dbType === "pg" ? table.jsonb(propertiesKey) : table.json(propertiesKey);
 			case "line":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'line') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'line') : table.string(propertiesKey,property.length);
 			case "lseg":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'lseg') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'lseg') : table.string(propertiesKey,property.length);
 			case "macaddr":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'macaddr') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'macaddr') : table.string(propertiesKey,property.length);
 			case "macaddr8":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'macaddr8') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'macaddr8') : table.string(propertiesKey,property.length);
 			case "money":
 				return dbType === "pg" ? table.specificType(propertiesKey, 'money') : table.decimal(propertiesKey, 19, 8);
 			case "numeric":
 				return table.decimal(propertiesKey, 19, 8);
 			case "path":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'path') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'path') : table.string(propertiesKey,property.length);
 			case "pg_lsn":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'pg_lsn') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'pg_lsn') : table.string(propertiesKey,property.length);
 			case "point":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'point') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'point') : table.string(propertiesKey,property.length);
 			case "polygon":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'polygon') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'polygon') : table.string(propertiesKey,property.length);
 			case "real":
 				return table.float(propertiesKey);
 			case "smallint":
@@ -307,10 +315,10 @@ function columnMapping(dbType: string, table: any, propertiesKey: string, proper
 			case "serial":
 				return dbType === "pg" ? table.specificType(propertiesKey, 'serial') : table.integer(propertiesKey);
 			case "text":
-				return table.text(propertiesKey);
+				return table.string(propertiesKey,property.length);
 			case "time":
 			case "time without time zone":
-				return dbType === "pg" || dbType === 'mysql' ? table.time(propertiesKey) : table.string(propertiesKey);
+				return dbType === "pg" || dbType === 'mysql' ? table.time(propertiesKey) : table.string(propertiesKey,property.length);
 			case "time with time zone":
 				return dbType === "pg" ? table.specificType(propertiesKey, 'time with time zone') : table.time(propertiesKey);
 			case "timestamp":
@@ -323,13 +331,13 @@ function columnMapping(dbType: string, table: any, propertiesKey: string, proper
 			case "tsvector":
 				return dbType === "pg" ? table.specificType(propertiesKey, 'tsvector') : table.text(propertiesKey);
 			case "txid_snapshot":
-				return dbType === "pg" ? table.specificType(propertiesKey, 'txid_snapshot') : table.string(propertiesKey);
+				return dbType === "pg" ? table.specificType(propertiesKey, 'txid_snapshot') : table.string(propertiesKey,property.length);
 			case "uuid":
 				return table.uuid(propertiesKey);
 			case "xml":
 				return dbType === "pg" ? table.specificType(propertiesKey, 'xml') : table.text(propertiesKey);
 			default:
-				return table.text(propertiesKey);
+				return table.string(propertiesKey,property.length);
 		}
 	})();
 	if (typeof property.default !== "undefined") {

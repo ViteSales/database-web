@@ -1,5 +1,5 @@
 import type {Knex} from "knex";
-import {knex} from "knex";
+import knex from "knex";
 import type {IDatabaseConnection} from "../interface/connection.ts";
 import {onDatabaseError} from "../error/database.ts";
 
@@ -19,8 +19,8 @@ export function connection(conn: IDatabaseConnection): Knex<any, unknown[]> | Er
 		database: string;
 		searchPath: string[] | undefined;
 	};
-	if (conn.type === "pg") {
-		connOption.searchPath = conn.searchPath || ["public"];
+	if (conn.type === "pg" && (conn.searchPath?.length || 0) > 0) {
+		connOption.searchPath = conn.searchPath;
 	} else {
 		connOption.searchPath = undefined;
 	}
@@ -36,6 +36,7 @@ export function connection(conn: IDatabaseConnection): Knex<any, unknown[]> | Er
 	}) as Knex<any, unknown[]>;
 	try {
 		db.raw("SELECT 1=1");
+		db.on("query", query => console.log(query.sql));
 		return db;
 	} catch (error: any) {
 		return onDatabaseError(error);

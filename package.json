@@ -2,6 +2,9 @@
   "name": "database-web",
   "module": "lib.ts",
   "type": "module",
+  "scripts": {
+    "run": "bun run test/schema-generator.ts"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/pg": "^8.11.10"

@@ -51,6 +51,7 @@ export interface IViteSalesSchemaProperty {
 	default?: any;
 	isPrimaryKey?: boolean;
 	nullable?: boolean;
+	length?: number;
 }
 
 export interface IViteSalesUI {
