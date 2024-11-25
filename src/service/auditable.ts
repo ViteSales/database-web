@@ -3,7 +3,7 @@ import type {Knex} from "knex";
 import {onDatabaseError} from "../error/database.ts";
 import {VS_TABLES} from "../constants";
 
-export class Auditable {
+export default class Auditable {
 	
 	constructor(private database: Knex<any, unknown[]>, private readonly user: string) {
 	}

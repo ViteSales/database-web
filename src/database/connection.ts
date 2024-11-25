@@ -1,5 +1,6 @@
 import type {Knex} from "knex";
 import knex from "knex";
+import "pg";
 import type {IDatabaseConnection} from "../interface/connection.ts";
 import {onDatabaseError} from "../error/database.ts";
 

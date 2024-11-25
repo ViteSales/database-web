@@ -1,9 +1,9 @@
 import type {IAuditableTransaction, ITransactional} from "../interface/auditable.ts";
 import type {KV} from "../types/kv.ts";
-import  {type Auditable} from "./auditable.ts";
 import type {Knex} from "knex";
 import {v4 as uuid} from "uuid";
 import {onDatabaseError} from "../error/database.ts";
+import type Auditable from "./auditable.ts";
 
 export default class Transactional implements ITransactional{
 	private auditableRecords: any[] = [];

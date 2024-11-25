@@ -4,10 +4,10 @@ import {onDatabaseError} from "../error/database.ts";
 import type {Knex} from "knex";
 import type {IAuthenticatedSession} from "../interface/session.ts";
 import {connection} from "../database/connection.ts";
-import {Auditable} from "./auditable.ts";
 import Transactional from "./transactional.ts";
+import Auditable from "./auditable.ts";
 
-export class Crud extends Auditable implements IAuditable{
+export default class NonTransactional extends Auditable implements IAuditable{
 	private db: Knex<any, unknown[]>;
 	
 	constructor(session: IAuthenticatedSession) {

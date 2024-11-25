@@ -5,7 +5,7 @@ import type {Knex} from "knex";
 import {VS_TABLES} from "../constants";
 import {onDatabaseError} from "../error/database.ts";
 
-export class Queryable implements IQueryable {
+export default class Queryable implements IQueryable {
 	private readonly db: Knex<any, unknown[]>;
 	private tableMap!: Map<string, string>;
 	constructor(conn: IDatabaseConnection) {
