@@ -29,7 +29,6 @@ export interface IViteSalesProperties {
 }
 
 export interface IViteSalesSecurity {
-	audit: boolean; // only for this module
 	permissions: string[];
 	roles: string[];
 	dependencies: string[]; // modules. debtor.create-new, debtor.update
