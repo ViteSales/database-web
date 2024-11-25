@@ -80,14 +80,17 @@ While Supabase is a powerful choice, ViteSales recognizes the importance of flex
 When working with ViteSales, developers can choose the database that best aligns with their application requirements and infrastructure. Supabase offers a modern, developer-friendly experience with its real-time and instant API features. Meanwhile, the flexibility to use PostgreSQL, MySQL, SQLite, MSSQL, or OracleDB ensures that developers can leverage the specific strengths of each database system to build scalable, efficient, and bespoke solutions.
 By incorporating a range of supported databases, ViteSales caters to a broad spectrum of development needs, from simple applications to complex, high-performance solutions, providing developers with the tools and flexibility they need to succeed
 
-## Join the ViteSales Community
+### ViteSales and Bun
+**ViteSales** is built with **Bun**, a fast all-in-one JavaScript runtime and bundler. By leveraging Bun, ViteSales benefits from improved performance, faster builds, and native support for modern JavaScript features. This ensures that the development process is efficient and the resulting applications are highly performant.
+### Early Stage and Contribution Invitation
+**ViteSales** is currently in its early stages, and we welcome contributions from the developer community. Whether you have ideas for new features, improvements, or bug fixes, your input can help shape the future of this innovative ERP system. Join us on GitHub to contribute and collaborate with other developers worldwide.
+- **Open Source Contributions**: ViteSales encourages open-source contributions. If you’re a developer eager to collaborate, fork our repository and start contributing today!
+- **Community Support**: Engage with our community of developers and users. Share your insights, ask questions, and contribute to discussions that drive the development of ViteSales.
 
-We invite developers, businesses, and contributors to join us in building the future of ERP systems. Explore the
-ViteSales Core DB Library, contribute to its development, and help shape the future of business automation.
-
-For more information, visit our website: [vitesales.com](https://vitesales.com)
-
-Thank you for choosing ViteSales!
+### Empower Your Business with ViteSales
+The **ViteSales Core DB Library** is integral to the success of the ViteSales ERP system, ensuring efficient and secure database operations. By supporting a wide range of databases and providing real-time capabilities through Supabase, ViteSales empowers businesses to optimize their operations and drive growth.
+## Connect with ViteSales
+We encourage the wider community to get involved and help us enhance ViteSales:
 
 ---
 
@@ -95,7 +98,7 @@ Stay connected with us:
 
 - **Website:** [vitesales.com](https://vitesales.com)
 - **GitHub:** [github.com/vitesales](https://github.com/vitesales)
-
+- **Contributions Welcome**: Check out our GitHub repository and join us in building a robust ERP solution. Your contributions are valuable and appreciated!
 ---
 
 ViteSales - Empowering businesses with innovative ERP solutions.
