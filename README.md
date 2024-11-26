@@ -70,11 +70,11 @@ and transactions that are essential to the smooth functioning of the ViteSales E
 
 #### Other Supported Databases
 While Supabase is a powerful choice, ViteSales recognizes the importance of flexibility and supports multiple databases to cater to various development environments and preferences:
-- **PostgreSQL**: An advanced, open-source relational database known for robustness, scalability, and SQL-compliance. It is ideal for complex queries and large-scale applications.
-- **MySQL**: A popular open-source relational database known for its speed, reliability, and ease of use. MySQL is widely used in web applications and offers extensive community support.
-- **SQLite**: A lightweight, serverless database engine that is highly suitable for embedded systems and small to medium-sized applications. Its simplicity and zero-configuration setup make it an excellent choice for quick development and prototyping.
-- **MSSQL**: Microsoft SQL Server provides a comprehensive and integrated data management system that ensures high performance, security, and scalability for enterprise-grade applications.
-- **OracleDB**: Oracle Database is renowned for its advanced features, high performance, and robustness in handling the most demanding transaction processing and data warehousing applications.
+- **PostgreSQL**
+- **MySQL**
+- **SQLite**
+- **MSSQL**
+- **OracleDB**
 
 ### Choosing the Right Database
 When working with ViteSales, developers can choose the database that best aligns with their application requirements and infrastructure. Supabase offers a modern, developer-friendly experience with its real-time and instant API features. Meanwhile, the flexibility to use PostgreSQL, MySQL, SQLite, MSSQL, or OracleDB ensures that developers can leverage the specific strengths of each database system to build scalable, efficient, and bespoke solutions.
