@@ -36,6 +36,10 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - uses: oven-sh/setup-bun@v2
 
+      - run: |
+            echo "registry=https://registry.npmjs.org/" >> .npmrc
+            echo "@{scope}:registry=https://npm.pkg.github.com/" >> .npmrc
+            echo "//npm.pkg.github.com//:authToken=${NPM_TOKEN}" >> .npmrc
       - run: npm i
       - run: bun install
       - run: bun run build
