@@ -15,6 +15,10 @@
     "build:declaration": "tsc --emitDeclarationOnly --project tsconfig.types.json",
     "postbuild": "rimraf tsconfig.types.tsbuildinfo"
   },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ViteSales/database-web.git"
+  },
   "devDependencies": {
     "@types/bun": "latest",
     "@types/pg": "^8.11.10",
