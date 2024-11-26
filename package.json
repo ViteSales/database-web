@@ -1,5 +1,5 @@
 {
-  "name": "db-connector-web",
+  "name": "@vitesales/db-connector-web",
   "description": "ViteSales database connector and schema generator for web application",
   "module": "src/index.ts",
   "main": "dist/index.js",
