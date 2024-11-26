@@ -15,8 +15,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 20
+      - uses: oven-sh/setup-bun@v2
+
+      - run: npm i
+      - run: bun install
+      - run: bun run build
       - run: npm ci
-      - run: npm test
 
   publish-gpr:
     needs: build
@@ -32,6 +36,7 @@ jobs:
           registry-url: https://npm.pkg.github.com/
       - uses: oven-sh/setup-bun@v2
 
+      - run: npm i
       - run: bun install
       - run: bun run build
       - run: npm ci
