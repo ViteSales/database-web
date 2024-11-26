@@ -5,7 +5,7 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "type": "module",
-  "version": "0.0.4",
+  "version": "0.0.6",
   "files": [
     "dist/*.js",
     "dist/*.d.ts"
@@ -36,5 +36,9 @@
     "knex": "^3.1.0",
     "pg": "^8.13.1",
     "uuid": "^11.0.3"
-  }
+  },
+  "keywords": [
+    "vitesales",
+    "database"
+  ]
 }
